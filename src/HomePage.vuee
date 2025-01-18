@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD:src/HomePage.vuee
   <div>
     <h2>Lecteur de musique</h2>
 
@@ -16,11 +17,24 @@
       @delete-track="deleteTrack"
     />
     <AddSongForm @add-track="addTrack" />
+=======
+  <div id="app">
+    <h1>Jukebox</h1>
+
+    <!-- Lien pour naviguer vers la page de gestion des playlists -->
+    <router-link to="/manage-playlists">
+      <button>Gérer les playlists</button>
+    </router-link>
+
+    <!-- Affichage de la vue active (selon la route) -->
+    <router-view></router-view>
+>>>>>>> 04728cf5b756db3cceb4c533bb9bb6a2727fbd89:App.vue
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
+<<<<<<< HEAD:src/HomePage.vuee
 import PlayerController from './components/PlayerController.vue';
 import MusicPlaylist from './components/MusicPlaylist.vue';
 import AddSongForm from './components/AddSongForm.vue';
@@ -66,3 +80,7 @@ const addTrack = (track) => {
   tracks.value.push(track);
 };
 </script>
+=======
+</script>
+
+>>>>>>> 04728cf5b756db3cceb4c533bb9bb6a2727fbd89:App.vue
