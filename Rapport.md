@@ -1,8 +1,8 @@
 # Compte Rendu TP Jukebox
 
 ## Binôme
-- Nom Prénom
-- Nom Prénom
+- Hanned Abir
+- El Khal Nawal
 
 ## Choix de conception et de réalisation
 
