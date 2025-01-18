@@ -1,0 +1,42 @@
+html, body {
+    height: 100%;
+    margin: 0;
+  }
+  
+  body {
+    padding: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: left;
+    text-align: left; /* Si vous voulez centrer le texte aussi */
+  }
+
+
+  .container {
+    display: inline-block; /* Ajuste le conteneur à la taille du contenu */
+    border: 1px solid #ccc; /* Bordure grise */
+    border-radius: 5px; /* Coins arrondis */
+    padding: 10px 20px; /* Espacement interne */
+    font-family: Arial, sans-serif; /* Police lisible */
+    text-align: left; /* Texte aligné à gauche */
+  }
+  
+  .container legend {
+    font-size: 14px; /* Taille du texte du titre */
+    font-weight: bold; /* Met le texte en gras */
+  } 
+  
+
+.add-song {
+  display: flex;
+  align-items: center;
+}
+
+.add-song select {
+  margin-right: 10px;
+}
+
+.add-song div {
+  display: inline-block;
+  margin-right: 10px;
+}
