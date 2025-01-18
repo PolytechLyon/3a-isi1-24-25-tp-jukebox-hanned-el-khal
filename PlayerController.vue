@@ -1,23 +1,32 @@
 <template>
-  <div class="player-controller">
+  <div>
     <h2>Now Playing</h2>
-    <div v-if="currentTrack">
-      <p>{{ currentTrack.title }} - {{ currentTrack.artist }}</p>
-      <audio ref="audioPlayer" :src="currentTrack.url" controls autoplay></audio>
+    <p v-if="props.currentTrack">
+      {{ props.currentTrack.title }} - {{ props.currentTrack.artist }}
+    </p>
+    <div>
+      <!-- Barre de progression -->
+      <input
+        type="range"
+        min="0"
+        :max="duration"
+        step="0.1"
+        v-model="currentTime"
+        @input="seekTrack"
+      />
       <div>
-        <button @click="togglePlay">{{ isPlaying ? 'Pause' : 'Play' }}</button>
-        <button @click="skipTrack('previous')">Previous</button>
-        <button @click="skipTrack('next')">Next</button>
+        {{ formatTime(currentTime) }} / {{ formatTime(duration) }}
       </div>
     </div>
-    <div v-else>
-      <p>No track playing</p>
-    </div>
+    <button @click="togglePlay">{{ props.isPlaying ? "Pause" : "Play" }}</button>
+    <button @click="skipTrack('previous')">Previous</button>
+    <button @click="skipTrack('next')">Next</button>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
+import { defineProps, defineEmits } from 'vue';
 
 const props = defineProps({
   currentTrack: Object,
@@ -26,36 +35,58 @@ const props = defineProps({
 
 const emit = defineEmits(['toggle-play', 'skip-track']);
 
-const audioPlayer = ref(null);
+const audio = ref(new Audio());
+const currentTime = ref(0);
+const duration = ref(0);
 
-const togglePlay = () => {
-  emit('toggle-play');
-  if (audioPlayer.value) {
-    if (props.isPlaying) {
-      audioPlayer.value.play();
-    } else {
-      audioPlayer.value.pause();
-    }
-  }
+// Formater le temps en "mm:ss"
+const formatTime = (time) => {
+  const minutes = Math.floor(time / 60);
+  const seconds = Math.floor(time % 60);
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
 
+// Mettre à jour la barre de progression
+audio.value.addEventListener('timeupdate', () => {
+  currentTime.value = audio.value.currentTime;
+});
+
+// Mettre à jour la durée totale
+audio.value.addEventListener('loadedmetadata', () => {
+  duration.value = audio.value.duration;
+});
+
+// Lire ou mettre en pause
+const togglePlay = () => {
+  if (props.isPlaying) {
+    audio.value.pause();
+  } else {
+    audio.value.play();
+  }
+  emit('toggle-play');
+};
+
+// Rechercher une position spécifique
+const seekTrack = () => {
+  audio.value.currentTime = currentTime.value;
+};
+
+// Mettre à jour la piste actuelle
+watch(
+  () => props.currentTrack,
+  (newTrack) => {
+    if (newTrack) {
+      audio.value.src = newTrack.url;
+      audio.value.load();
+      if (props.isPlaying) {
+        audio.value.play();
+      }
+    }
+  }
+);
+
+// Passer à la piste suivante ou précédente
 const skipTrack = (direction) => {
   emit('skip-track', direction);
 };
-
-// Reprend automatiquement la lecture quand la piste change
-watch(() => props.currentTrack, () => {
-  if (audioPlayer.value && props.currentTrack) {
-    audioPlayer.value.load(); // Recharge l'audio
-    audioPlayer.value.play();
-  }
-});
 </script>
-
-<style scoped>
-.player-controller {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-</style>
