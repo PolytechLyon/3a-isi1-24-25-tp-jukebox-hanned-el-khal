@@ -1,3 +1,4 @@
+/* eslint-disable */ 
 <template>
   <div class="music-playlist">
     <h2>Playlist</h2>

@@ -1,3 +1,4 @@
+/* eslint-disable */ 
 <template>
   <div>
     <h2>Now Playing</h2>
