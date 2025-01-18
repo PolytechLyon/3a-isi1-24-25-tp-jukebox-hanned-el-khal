@@ -1,6 +1,7 @@
 <template>
-  <div class="add-song">
+  
     <h2>New track</h2>
+    <div class="add-song">
     <select v-model="addMethod">
       <option value="url">By URL</option>
       <option value="file">By File</option>
