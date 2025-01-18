@@ -3,13 +3,15 @@
     <h1>Jukebox</h1>
     <router-link to="/playlist">Manage playlists</router-link> <!-- Lien vers Playlist -->
     <h2>Currently Playing: {{ selectedPlaylist }}</h2>
-    <!-- Ici, la vue change en fonction de la route -->
+    
+    <!-- PlayerController ici pour contrôler la lecture -->
     <PlayerController
       :currentTrack="currentTrack"
       :isPlaying="isPlaying"
       @toggle-play="togglePlay"
       @skip-track="skipTrack"
     />
+    
     <form>
       <fieldset class="container">
         <legend>Playback mode</legend>
@@ -24,8 +26,10 @@
         </label>
       </fieldset>
     </form>
+
+    <!-- Liste des musiques de la playlist active -->
     <MusicPlaylist
-      :tracks="tracks"
+      :tracks="selectedPlaylistTracks"
       :currentTrackIndex="currentTrackIndex"
       @play-track="playTrack"
       @delete-track="deleteTrack"
@@ -33,33 +37,40 @@
     <AddSongForm @add-track="addTrack" />
   </div>
 </template>
+
+
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useRoute } from "vue-router"; // Importation de useRoute
+import { useRoute } from "vue-router";
 import AddSongForm from "../components/AddSongForm.vue";
 import PlayerController from "../components/PlayerController.vue";
 import MusicPlaylist from "../components/MusicPlaylist.vue";
 
-// Récupérer la playlist sélectionnée à partir des paramètres de la route
+// Récupération de la playlist active depuis la route
 const route = useRoute();
-const selectedPlaylist = route.query.playlist || "Default Playlist";
+const selectedPlaylist = ref(route.query.playlist || "Default Playlist");
 
 // Gestion des pistes
-const tracks = ref([]);
+const allPlaylists = ref({}); // Toutes les playlists
 const currentTrackIndex = ref(null);
 const isPlaying = ref(false);
-const playbackMode = ref("repeat-list"); // Modes : 'repeat-list', 'repeat-track', 'no-repeat'
+const playbackMode = ref("repeat-list");
+
+// Chargement de la playlist active
+const selectedPlaylistTracks = computed(() => {
+  return allPlaylists.value[selectedPlaylist.value] || [];
+});
+
+// Charger toutes les playlists depuis localStorage
+onMounted(() => {
+  const savedPlaylists = JSON.parse(localStorage.getItem("playlists")) || {};
+  allPlaylists.value = savedPlaylists;
+});
 
 const currentTrack = computed(() => {
   return currentTrackIndex.value !== null
-    ? tracks.value[currentTrackIndex.value]
+    ? selectedPlaylistTracks.value[currentTrackIndex.value]
     : null;
-});
-
-// Charger la playlist depuis localStorage si elle existe
-onMounted(() => {
-  const savedTracks = JSON.parse(localStorage.getItem("playlist")) || [];
-  tracks.value = savedTracks;
 });
 
 const togglePlay = () => {
@@ -67,7 +78,7 @@ const togglePlay = () => {
 };
 
 const playTrack = (index) => {
-  if (!tracks.value[index].broken) {
+  if (!selectedPlaylistTracks.value[index].broken) {
     currentTrackIndex.value = index;
     isPlaying.value = true;
   }
@@ -75,28 +86,26 @@ const playTrack = (index) => {
 
 const skipTrack = (direction) => {
   if (playbackMode.value === "repeat-track" && direction === "next") {
-    // Reste sur la même piste
-    return;
+    return; // Reste sur la même piste
   }
 
   if (direction === "next") {
     if (playbackMode.value === "repeat-list") {
-      currentTrackIndex.value = (currentTrackIndex.value + 1) % tracks.value.length;
-    } else if (currentTrackIndex.value + 1 < tracks.value.length) {
+      currentTrackIndex.value = (currentTrackIndex.value + 1) % selectedPlaylistTracks.value.length;
+    } else if (currentTrackIndex.value + 1 < selectedPlaylistTracks.value.length) {
       currentTrackIndex.value += 1;
     } else {
-      // Si pas en mode Repeat List, arrêter la lecture à la fin
       currentTrackIndex.value = null;
       isPlaying.value = false;
     }
   } else if (direction === "previous") {
     currentTrackIndex.value =
-      (currentTrackIndex.value - 1 + tracks.value.length) % tracks.value.length;
+      (currentTrackIndex.value - 1 + selectedPlaylistTracks.value.length) % selectedPlaylistTracks.value.length;
   }
 };
 
 const deleteTrack = (index) => {
-  tracks.value.splice(index, 1);
+  selectedPlaylistTracks.value.splice(index, 1);
   if (currentTrackIndex.value === index) {
     currentTrackIndex.value = null;
     isPlaying.value = false;
@@ -104,15 +113,18 @@ const deleteTrack = (index) => {
     currentTrackIndex.value -= 1;
   }
 
-  // Mettre à jour le localStorage après suppression
-  localStorage.setItem("playlist", JSON.stringify(tracks.value));
+  // Sauvegarder les modifications dans localStorage
+  localStorage.setItem("playlists", JSON.stringify(allPlaylists.value));
 };
 
 const addTrack = (track) => {
-  // Ajouter le morceau à la playlist
-  tracks.value.push({ ...track, broken: false });
+  const newTrack = { ...track, broken: false };
+  if (!allPlaylists.value[selectedPlaylist.value]) {
+    allPlaylists.value[selectedPlaylist.value] = [];
+  }
+  allPlaylists.value[selectedPlaylist.value].push(newTrack);
 
-  // Sauvegarder les tracks dans localStorage
-  localStorage.setItem("playlist", JSON.stringify(tracks.value));
+  // Sauvegarder dans le localStorage
+  localStorage.setItem("playlists", JSON.stringify(allPlaylists.value));
 };
 </script>
