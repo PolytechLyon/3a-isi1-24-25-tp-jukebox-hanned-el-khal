@@ -33,7 +33,7 @@ const isEditing = computed(() => editedItemIndex.value !== undefined);
 
 const editedTitle = computed(() => list.value[editedItemIndex.value]);
 
-export function useTodoList() {
+export function usePlaylist() {
     return {
         items,
         add,

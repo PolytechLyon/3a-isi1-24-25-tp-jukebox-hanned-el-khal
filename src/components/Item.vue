@@ -1,5 +1,5 @@
 <script setup>
-import { useTodoList } from "../composables/useTodoList.js";
+import { usePlaylist } from "../composables/usePlaylist.js";
 import { useRouter } from "vue-router"; // Import du router
 
 const props = defineProps({
@@ -9,7 +9,7 @@ const props = defineProps({
 
 const {
   remove,
-} = useTodoList();
+} = usePlaylist();
 
 const router = useRouter(); // Initialisation du router
 

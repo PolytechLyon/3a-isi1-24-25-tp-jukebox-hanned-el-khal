@@ -13,12 +13,12 @@
 
 <script>
 import { ref, watchEffect } from "vue";
-import { useTodoList } from "../composables/useTodoList.js";
+import { usePlaylist } from "../composables/usePlaylist.js";
 
 export default {
   name: "AddPlaylist",
   setup() {
-    const { add, isEditing } = useTodoList(); // Utilisation du composable
+    const { add, isEditing } = usePlaylist(); // Utilisation du composable
     const title = ref(""); // Variable réactive pour le champ d'entrée
     const input = ref(null); // Référence pour l'élément d'entrée
 
