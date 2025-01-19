@@ -3,7 +3,7 @@
     <h2>Playlist</h2>
     <ul>
       <li v-for="(track, index) in tracks" :key="index" :class="{ playing: index === currentTrackIndex }">
-        <span>{{ track.title }} - {{ track.artist }}</span>
+        <span>{{ track.title }} </span>
         <button @click="playTrack(index)">Play</button>
         <button @click="deleteTrack(index)">Delete</button>
       </li>
